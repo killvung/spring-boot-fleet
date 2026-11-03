@@ -1,0 +1,73 @@
+syntax = "proto3";
+
+package ttc.fleet.v1;
+option java_package = "ca.ttc.fleet.api.v1";
+option java_multiple_files = true;
+option java_outer_classname = "TtcFleetProto";
+
+import "google/protobuf/timestamp.proto";
+
+service FleetService {
+  rpc GetLatestVehiclePositions(GetLatestVehiclePositionsRequest) returns (stream VehiclePosition);
+  rpc GetVehicleHistory(GetVehicleHistoryRequest) returns (stream VehiclePosition);
+  rpc GetRouteSnapshot(GetRouteSnapshotRequest) returns (RouteSnapshot);
+}
+
+message VehiclePosition {
+  string vehicle_id = 1;
+  optional string route_id = 2;
+  optional string trip_id = 3;
+  optional uint32 direction_id = 4;
+  double latitude = 5;
+  double longitude = 6;
+  optional float bearing = 7;
+  // Metres per second, unchanged from GTFS-Realtime.
+  optional float speed = 8;
+  // Original GTFS-Realtime enum name; absent means not reported.
+  optional string occupancy_status = 9;
+  optional uint32 current_stop_sequence = 10;
+  optional string current_stop_id = 11;
+  google.protobuf.Timestamp source_timestamp = 12;
+  google.protobuf.Timestamp ingested_at = 13;
+}
+
+message GetLatestVehiclePositionsRequest {
+  optional string route_id = 1;
+  optional string vehicle_id = 2;
+  optional uint32 direction_id = 3;
+  // Zero selects the configured maximum (default 1000). Larger values are invalid.
+  uint32 limit = 4;
+  // Exclusive vehicle-id cursor. Results are ordered by vehicle_id ascending.
+  optional string after_vehicle_id = 5;
+}
+
+message GetVehicleHistoryRequest {
+  optional string vehicle_id = 1;
+  optional string route_id = 2;
+  optional uint32 direction_id = 3;
+  // Inclusive from, exclusive to. Omit either for an unbounded side.
+  google.protobuf.Timestamp from = 4;
+  google.protobuf.Timestamp to = 5;
+  uint32 limit = 6;
+  // Exclusive cursor in (source_timestamp DESC, vehicle_id ASC) order.
+  // Supply both fields together, using the final record in the previous response.
+  google.protobuf.Timestamp before_source_timestamp = 7;
+  optional string after_vehicle_id = 8;
+}
+
+message GetRouteSnapshotRequest {
+  string route_id = 1;
+  optional string vehicle_id = 2;
+  optional uint32 direction_id = 3;
+  uint32 limit = 4;
+  optional string after_vehicle_id = 5;
+}
+
+message RouteSnapshot {
+  string route_id = 1;
+  google.protobuf.Timestamp queried_at = 2;
+  repeated VehiclePosition positions = 3;
+  bool truncated = 4;
+  // Set only if another page exists.
+  optional string next_after_vehicle_id = 5;
+}

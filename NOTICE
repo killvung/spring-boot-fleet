@@ -1,0 +1,8 @@
+src/main/proto/gtfs-realtime.proto is an unmodified copy of the official GTFS-Realtime schema:
+https://raw.githubusercontent.com/google/transit/master/gtfs-realtime/proto/gtfs-realtime.proto
+Retrieved 2026-11-03.
+SHA-256: 8feff2c5499e0ff08777e203e49ef702e07be0a8376b8bb2126add311a709299
+Copyright 2015 The GTFS Specifications Authors.
+Licensed under Apache License 2.0; see LICENSE-GTFS-Realtime.
+
+The Maven Wrapper scripts retain their upstream Apache license notices.

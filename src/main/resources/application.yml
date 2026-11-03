@@ -1,0 +1,70 @@
+spring:
+  application:
+    name: ttc-fleet-service
+  main:
+    web-application-type: none
+    keep-alive: true
+  threads:
+    virtual:
+      enabled: true
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/ttc_fleet?reWriteBatchedInserts=true&connectTimeout=5&socketTimeout=15}
+    username: ${DB_USERNAME:ttc_fleet}
+    password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: ${DB_POOL_SIZE:8}
+      minimum-idle: 2
+      connection-timeout: 5000
+      validation-timeout: 2000
+      connection-init-sql: SET TIME ZONE 'UTC'
+  jdbc:
+    template:
+      query-timeout: 15s
+  flyway:
+    enabled: true
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+  grpc:
+    server:
+      port: ${grpc.server.port}
+      shutdown:
+        grace-period: 20s
+      inbound:
+        message:
+          max-size: 64KB
+      health:
+        enabled: false
+      reflection:
+        enabled: false
+
+grpc:
+  server:
+    port: ${GRPC_SERVER_PORT:50051}
+
+ttc:
+  feed-url: ${TTC_FEED_URL:https://bustime.ttc.ca/gtfsrt/vehicles}
+  poll-interval: ${TTC_POLL_INTERVAL:20s}
+  connect-timeout: ${TTC_CONNECT_TIMEOUT:5s}
+  read-timeout: ${TTC_READ_TIMEOUT:10s}
+  retention-days: ${TTC_RETENTION_DAYS:30}
+  max-records: ${TTC_MAX_RECORDS:1000}
+  max-feed-bytes: ${TTC_MAX_FEED_BYTES:8388608}
+  ingestion-enabled: ${TTC_INGESTION_ENABLED:true}
+  cleanup-cron: ${TTC_CLEANUP_CRON:0 0 * * * *}
+
+logging:
+  structured:
+    format:
+      console: logstash
+
+management:
+  endpoints:
+    web:
+      exposure:
+        exclude: '*'
+  endpoint:
+    health:
+      show-details: never
+  metrics:
+    tags:
+      application: ${spring.application.name}
